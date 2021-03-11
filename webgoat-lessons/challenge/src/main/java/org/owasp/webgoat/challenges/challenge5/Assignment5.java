@@ -46,31 +46,35 @@ public class Assignment5 extends AssignmentEndpoint {
         this.dataSource = dataSource;
     }
 
-     @PostMapping("/challenge/5")
+    @PostMapping("/challenge/5")
     @ResponseBody
-    public AttackResult login(@RequestParam String username_login, @RequestParam String password_login) throws Exception {
+    public AttackResult login(@RequestParam String username_login, @RequestParam String password_login)
+            throws Exception {
         if (!StringUtils.hasText(username_login) || !StringUtils.hasText(password_login)) {
             return failed(this).feedback("required4").build();
         }
         if (!"Larry".equals(username_login)) {
             return failed(this).feedback("user.not.larry").feedbackArgs(username_login).build();
         }
-        var connection=dataSource.getConnection();
-        try  {
-            
-            String query="select password from challenge_users where userid = ? and password = ?";
-            PreparedStatement statemente=connection.prepareStatement(query);
-            statemente.setString(1,username_login);
-            statemente.setString(2,password_login);
-            ResultSet resultSet=statemente.executeQuery();
+
+        PreparedStatement statement = null;
+        try (var connection = dataSource.getConnection()) {
+
+            String query = "select password from challenge_users where userid = ? and password = ?";
+            statement = connection.prepareStatement(query);
+            statement.setString(1, username_login);
+            statement.setString(2, password_login);
+            ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
                 return success(this).feedback("challenge.solved").feedbackArgs(Flag.FLAGS.get(5)).build();
             } else {
                 return failed(this).feedback("challenge.close").build();
             }
-        }finally{
-            connection.close();
         }
-    }
-}
+         finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
+    }}
