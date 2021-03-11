@@ -46,7 +46,7 @@ public class Assignment5 extends AssignmentEndpoint {
         this.dataSource = dataSource;
     }
 
-    @PostMapping("/challenge/5")
+     @PostMapping("/challenge/5")
     @ResponseBody
     public AttackResult login(@RequestParam String username_login, @RequestParam String password_login) throws Exception {
         if (!StringUtils.hasText(username_login) || !StringUtils.hasText(password_login)) {
@@ -55,6 +55,7 @@ public class Assignment5 extends AssignmentEndpoint {
         if (!"Larry".equals(username_login)) {
             return failed(this).feedback("user.not.larry").feedbackArgs(username_login).build();
         }
+        var connection=null;
         try (var connection = dataSource.getConnection()) {
             
             String query="selecst password from challenge_users where userid = ? and password = ?";
@@ -73,4 +74,3 @@ public class Assignment5 extends AssignmentEndpoint {
         }
     }
 }
-
