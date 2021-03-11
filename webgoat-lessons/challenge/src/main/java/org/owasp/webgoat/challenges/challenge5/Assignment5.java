@@ -55,10 +55,10 @@ public class Assignment5 extends AssignmentEndpoint {
         if (!"Larry".equals(username_login)) {
             return failed(this).feedback("user.not.larry").feedbackArgs(username_login).build();
         }
-        var connection=null;
-        try (var connection = dataSource.getConnection()) {
+        Connection connection=dataSource.getConnection();
+        try () {
             
-            String query="selecst password from challenge_users where userid = ? and password = ?";
+            String query="select password from challenge_users where userid = ? and password = ?";
             PreparedStatement statemente=connection.prepareStatement(query);
             statemente.setString(1,username_login);
             statemente.setString(2,password_login);
