@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 @RestController
 @Slf4j
@@ -48,22 +49,20 @@ public class Assignment5 extends AssignmentEndpoint {
 
     @PostMapping("/challenge/5")
     @ResponseBody
-    public AttackResult login(@RequestParam String username_login, @RequestParam String password_login)
-            throws Exception {
-        if (!StringUtils.hasText(username_login) || !StringUtils.hasText(password_login)) {
+    public AttackResult login(@RequestParam String username, @RequestParam String password) throws SQLException {
+        if (!StringUtils.hasText(username) || !StringUtils.hasText(password)) {
             return failed(this).feedback("required4").build();
         }
-        if (!"Larry".equals(username_login)) {
-            return failed(this).feedback("user.not.larry").feedbackArgs(username_login).build();
+        if (!"Larry".equals(username)) {
+            return failed(this).feedback("user.not.larry").feedbackArgs(username).build();
         }
-
         PreparedStatement statement = null;
-        try (var connection = dataSource.getConnection()) {
 
+        try (var connection = dataSource.getConnection()) {
             String query = "select password from challenge_users where userid = ? and password = ?";
             statement = connection.prepareStatement(query);
-            statement.setString(1, username_login);
-            statement.setString(2, password_login);
+            statement.setString(1, username);
+            statement.setString(2, password);
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
@@ -71,10 +70,10 @@ public class Assignment5 extends AssignmentEndpoint {
             } else {
                 return failed(this).feedback("challenge.close").build();
             }
-        }
-         finally {
+        } finally {
             if (statement != null) {
                 statement.close();
             }
         }
-    }}
+    }
+}
